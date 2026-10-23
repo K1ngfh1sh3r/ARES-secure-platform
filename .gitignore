@@ -1,0 +1,51 @@
+# Secrets et variables d'environnement
+.env
+.env.*
+!.env.example
+*.secret
+secrets/
+**/secrets/
+
+# Clés privées et certificats privés
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.rc
+.terraformrc
+
+# Ansible
+*.retry
+vault-password.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# IDE et système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Sauvegardes et fichiers temporaires
+*.bak
+*.tmp
+*.log
