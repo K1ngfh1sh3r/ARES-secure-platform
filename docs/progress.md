@@ -1,10 +1,10 @@
 # ARES - Journal d'avancement
 
-## 2026-10-24 - Premier démarrage d'OPNsense
+## 2026-10-25 - Mise en place du VLAN 10
 
 ### Objectif de la session
 
-Mettre en place la première brique réseau du projet ARES, tout en préservant l'accès à Proxmox et à Internet depuis le poste Debian.
+Mettre en place le premier segment VLAN de l'infrastructure ARES, tester l'accès d'administration depuis Debian et préserver l'accès existant à Proxmox et à Internet.
 
 ### Environnement
 
@@ -18,56 +18,72 @@ Mettre en place la première brique réseau du projet ARES, tout en préservant 
 | Élément | Configuration actuelle |
 |---|---|
 | `vmbr0` | Bridge Proxmox existant, conservé pour la gestion et le réseau domestique |
-| `vmbr1` | Bridge dédié au LAN ARES, associé à `nic1`, VLAN-aware |
-| WAN OPNsense | `vtnet0`, adresse DHCP `192.168.1.92/24` |
-| LAN OPNsense | `vtnet1`, adresse `10.20.10.1/24` |
-| Poste Debian - Ethernet | `10.20.10.110/24` |
-| Poste Debian - Wi-Fi | Réseau domestique, conservé pour l'accès Internet |
+| `vmbr1` | Bridge ARES associé à `nic1`, VLAN-aware, sans adresse IP de gestion |
+| WAN OPNsense | `vtnet0`, DHCP, `192.168.1.92/24` |
+| LAN de secours OPNsense | `vtnet1`, `10.20.99.1/24` |
+| VLAN 10 - IT-ADMIN | Interface VLAN sur `vtnet1`, `10.20.10.1/24` |
+| Debian - Ethernet non tagué | `10.20.99.110/24` |
+| Debian - VLAN 10 | `enp0s31f6.10`, `10.20.10.110/24` |
+| Debian - Wi-Fi | Réseau domestique, utilisé pour conserver l'accès Internet |
 
-Le WAN utilise le réseau domestique `192.168.1.0/24`. Le LAN ARES utilise un sous-réseau distinct afin d'éviter le chevauchement avec le WAN.
+L'adresse de gestion Proxmox reste `192.168.1.70/24`. La configuration de `vmbr0` et l'adresse de gestion de Proxmox n'ont pas été modifiées.
 
-L'adresse de gestion de Proxmox reste `192.168.1.70/24`. Sa configuration n'a pas été modifiée pendant cette session.
+Le LAN de secours `10.20.99.0/24` est distinct du VLAN 10 `10.20.10.0/24`, ce qui évite d'utiliser le même sous-réseau sur les deux interfaces.
+
+### Règles de filtrage mises en place
+
+Sur l'interface VLAN 10, les règles suivantes ont été ajoutées :
+
+- Autoriser temporairement le ping de diagnostic depuis `10.20.10.110` vers l'adresse de l'interface VLAN 10.
+- Autoriser HTTPS depuis `10.20.10.110` vers l'adresse de gestion OPNsense `10.20.10.1`.
+- Autoriser HTTPS depuis `10.20.10.110` vers Proxmox `192.168.1.70:8006`.
+
+La règle de diagnostic ICMP est temporaire : elle devra être supprimée ou remplacée lorsque les tests seront terminés.
+
+**Point de vigilance :** l'accès à Proxmox doit encore être vérifié en forçant le trafic à passer par le VLAN 10. Un test réalisé depuis le poste Debian peut utiliser le Wi-Fi si le routage le privilégie.
+
+Les règles actuelles ne constituent pas encore une politique de filtrage complète. Le filtrage inter-VLAN reste à définir.
 
 ### Vérifications réalisées
 
-Depuis le poste Debian :
-
 | Test | Résultat |
 |---|---|
-| Ping de `10.20.10.1` | 3 paquets reçus sur 3 |
-| Ping de `192.168.1.70` | 3 paquets reçus sur 3 |
-| Ping de `deb.debian.org` | 3 paquets reçus sur 3 |
+| Ping de `10.20.10.1` depuis le VLAN 10 | Réussi : 4 réponses sur 4 |
+| Ping de `10.20.99.1` depuis le réseau de secours | Réussi : 4 réponses sur 4 |
+| Accès HTTPS à OPNsense via `https://10.20.10.1` | Réussi : HTTP 200 |
+| Accès HTTPS à Proxmox via `https://192.168.1.70:8006` | Interface accessible ; chemin réseau à confirmer |
+| Connectivité Internet depuis le shell OPNsense | Tests vers `1.1.1.1` et `deb.debian.org` réussis |
 
-Depuis le shell OPNsense, les tests précédents vers `1.1.1.1` et `deb.debian.org` ont également réussi.
-
-L'accès à l'interface Web d'administration OPNsense est fonctionnel depuis le LAN.
-
-### État fonctionnel à la fin de la session
+### État du projet
 
 - [x] OPNsense installé et démarré.
-- [x] WAN et LAN identifiés et configurés.
-- [x] Sous-réseaux WAN et LAN distincts.
-- [x] Accès au tableau de bord OPNsense.
-- [x] Accès à l'interface de gestion Proxmox préservé.
-- [x] Connectivité Internet du poste Debian vérifiée.
-- [ ] VLAN 10, 20, 30 et 40 configurés et testés.
-- [ ] Règles de filtrage inter-VLAN implémentées et vérifiées.
-- [ ] Déploiement de DevSecApp sur l'infrastructure.
-- [ ] Accès distant par VPN configuré et testé.
-- [ ] Infrastructure as Code et automatisation du déploiement.
+- [x] WAN et LAN de secours configurés.
+- [x] `vmbr1` dédié à ARES, avec VLAN-aware activé.
+- [x] VLAN 10 créé et affecté à une interface OPNsense.
+- [x] Connectivité entre Debian et la passerelle VLAN 10 vérifiée.
+- [x] Interface Web OPNsense accessible depuis le VLAN 10.
+- [x] Sauvegarde de la configuration OPNsense exportée hors du dépôt Git.
+- [ ] Vérifier le chemin réseau effectif vers Proxmox depuis le VLAN 10.
+- [ ] Rendre la configuration VLAN de Debian persistante.
+- [ ] Créer et tester les VLAN 20, 30 et 40.
+- [ ] Définir et vérifier le filtrage inter-VLAN.
+- [ ] Déployer DevSecApp dans le segment serveurs.
+- [ ] Configurer et tester le VPN d'accès distant.
+- [ ] Automatiser le déploiement avec Terraform et Ansible.
 
 ### Points de vigilance
 
 - Ne pas exposer l'interface d'administration Proxmox directement sur Internet.
 - Ne pas modifier `vmbr0` ni l'adresse de gestion Proxmox sans procédure de retour arrière.
 - Conserver un accès local fonctionnel pendant la mise en place progressive des VLAN.
-- Vérifier les règles du pare-feu avant d'autoriser les communications entre segments.
+- Vérifier les chemins réseau réels, et pas uniquement le résultat des tests HTTP.
 - Ne jamais versionner de mot de passe, de clé privée ou de secret.
 
 ### Prochaine session
 
-1. Sauvegarder la configuration OPNsense.
-2. Vérifier et documenter les paramètres réseau de la VM dans Proxmox.
-3. Préparer la configuration VLAN progressive.
-4. Définir et tester les règles de filtrage avant le déploiement de DevSecApp.
-5. Préparer ensuite l'accès distant par VPN.
+1. Confirmer le chemin réseau utilisé pour joindre Proxmox.
+2. Vérifier les règles d'administration du VLAN 10 et retirer la règle ICMP temporaire lorsqu'elle ne sera plus nécessaire.
+3. Rendre la configuration VLAN du poste Debian persistante.
+4. Créer progressivement les VLAN 20, 30 et 40.
+5. Tester les règles de filtrage avant de déployer DevSecApp.
+6. Préparer l'accès distant par VPN une fois le réseau local stable.
