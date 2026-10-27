@@ -147,3 +147,26 @@ La règle VLAN 20 actuellement nommée `Accès HTTPS à DevSecApp` doit être re
 3. Vérifier les restrictions entre les VLAN.
 4. Nettoyer les règles temporaires et documenter la politique de filtrage.
 5. Préparer le déploiement automatisé du serveur et de DevSecApp.
+
+## 2026-10-27 — Network validation and test VM preparation
+
+### Completed
+- Reviewed the existing ARES VLAN architecture and firewall rules.
+- Confirmed connectivity to the gateways of VLAN 10, VLAN 20, VLAN 30 and VLAN 40.
+- Reviewed the `ARES_INTERNAL_NETS` alias and the inter-VLAN blocking rules.
+- Confirmed that the Proxmox host has sufficient resources for a lightweight test VM.
+- Created the Debian test VM `ares-test-vlan20` to prepare inter-VLAN firewall validation.
+
+### Findings
+- VLAN 10 administration access has been partially validated.
+- VLAN 20 gateway connectivity and DNS resolution have been validated.
+- HTTPS connectivity through VLAN 20 still requires investigation.
+- Inter-VLAN isolation has not yet been conclusively validated with separate endpoints.
+- Temporary ICMP diagnostic rules are still present and must be reviewed after testing.
+
+### Next steps
+1. Complete the Debian installation and configure the test VM network in VLAN 20.
+2. Test allowed and denied traffic between VLANs using the test VM.
+3. Investigate HTTPS connectivity from VLAN 20.
+4. Review and remove temporary diagnostic firewall rules when no longer needed.
+5. Update the documentation with the test results.
