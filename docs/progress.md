@@ -170,3 +170,29 @@ La règle VLAN 20 actuellement nommée `Accès HTTPS à DevSecApp` doit être re
 3. Investigate HTTPS connectivity from VLAN 20.
 4. Review and remove temporary diagnostic firewall rules when no longer needed.
 5. Update the documentation with the test results.
+
+## 2026-10-28 — VLAN 20 firewall validation and cleanup
+
+### Completed
+- Installed and configured the Debian test VM `ares-test-vlan20` on VLAN 20 with address `10.20.20.10/24` and default gateway `10.20.20.1`.
+- Confirmed DNS resolution from the test VM.
+- Confirmed outbound IPv4 HTTPS connectivity to `deb.debian.org` (`HTTP 200`).
+- Tested HTTPS access to `10.20.30.1` after restricting the VLAN 20 HTTPS rule to the reserved DevSecApp host `10.20.40.10`; the connection timed out, consistent with the internal-network filtering policy.
+- Tested TCP connectivity from the VLAN 20 test VM to `10.20.30.110:22`; OPNsense Live View showed the attempt was blocked, confirming this specific inter-VLAN restriction.
+- Disabled all four temporary ICMP diagnostic rules on VLANs 10, 20, 30 and 40.
+- Reviewed the VLAN 10 rule order and confirmed `SSH vers les serveurs` is above `Bloquer les autres accès internes`.
+
+### Findings and limitations
+- Inter-VLAN filtering has been confirmed for the tested SSH flow from `10.20.20.10` to `10.20.30.110:22`. This does not prove that every inter-VLAN flow has been tested.
+- The ping test to the VLAN 20 gateway remains unsuccessful. ICMP is not required for the currently validated DNS and HTTPS flows, so no further troubleshooting was performed in this session.
+- The reserved DevSecApp address `10.20.40.10` is not yet a deployed application server. Access to the application itself has therefore not been validated.
+- HTTPS access to `10.20.30.1` timed out after the VLAN 20 rule was narrowed; this is consistent with filtering but is not, by itself, a complete proof of the matching firewall rule.
+- The four temporary ICMP rules are disabled, not deleted.
+
+### Next steps
+1. Review the final OPNsense rules and verify expected allowed and denied flows for each VLAN.
+2. Make the Debian workstation VLAN configuration persistent if it is still needed for the lab.
+3. Deploy the DevSecApp service in VLAN 40 and validate access from VLAN 20.
+4. Continue the Terraform and Ansible automation work.
+5. Configure and test remote VPN access after local operation is stable.
+6. Update this progress log after subsequent tests; do not treat untested VLAN flows as validated.
