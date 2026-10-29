@@ -196,3 +196,94 @@ La règle VLAN 20 actuellement nommée `Accès HTTPS à DevSecApp` doit être re
 4. Continue the Terraform and Ansible automation work.
 5. Configure and test remote VPN access after local operation is stable.
 6. Update this progress log after subsequent tests; do not treat untested VLAN flows as validated.
+
+## 2026-10-29 — Déploiement de DevSecApp et validation HTTPS
+
+### Objectif de la session
+
+Déployer DevSecApp sur le serveur du VLAN 40, mettre en place un accès HTTPS avec Nginx et vérifier l'accessibilité de l'application depuis la VM de test du VLAN 20.
+
+### Environnement
+
+| Élément | Configuration |
+|---|---|
+| Serveur applicatif | `ares-app-vlan40` |
+| Adresse du serveur | `10.20.40.10/24` |
+| Passerelle du VLAN 40 | `10.20.40.1` |
+| VM de test | `ares-test-vlan20` |
+| Adresse de la VM de test | `10.20.20.10/24` |
+| Système du serveur | Debian 13.7 |
+| Conteneurs | Docker Engine 29.9.2 et Docker Compose v5.6.1 |
+| Reverse proxy | Nginx |
+| Dépôt applicatif | `K1ngfh1sh3r/devsecapp` |
+| Branche applicative déployée | `feature/database` |
+
+### Réalisations
+
+- Installation de Docker Engine depuis le dépôt officiel et activation du service.
+- Clonage du dépôt DevSecApp dans `/opt/devsecapp`.
+- Création du fichier `.env` avec un mot de passe PostgreSQL généré aléatoirement.
+- Protection du fichier `.env` avec les permissions `600`, propriétaire `root`.
+- Configuration de Docker Compose : aucun port PostgreSQL publié et API publiée uniquement sur `127.0.0.1:8000`.
+- Construction et démarrage des conteneurs API et PostgreSQL.
+- Installation de Nginx et OpenSSL.
+- Création d'un certificat TLS autosigné avec une SAN correspondant à l'adresse IP `10.20.40.10`.
+- Configuration de Nginx pour écouter en HTTPS sur `10.20.40.10:443` et transmettre les requêtes à l'API locale.
+- Activation du site Nginx `devsecapp` et démarrage du service.
+
+### Vérifications réalisées
+
+| Test | Résultat |
+|---|---|
+| Validation de la configuration Docker Compose (`docker compose config -q`) | Réussie |
+| Démarrage des conteneurs API et PostgreSQL | Réussi |
+| Endpoint local `http://127.0.0.1:8000/health` | HTTP 200, `{"status":"ok"}` |
+| Vérification de la configuration Nginx (`nginx -t`) | Réussie |
+| État du service Nginx | Actif |
+| Endpoint HTTPS local `https://10.20.40.10/health` | HTTP 200 |
+| Endpoint HTTPS depuis la VM VLAN 20 vers `https://10.20.40.10/health` | HTTP 200 |
+| Documentation FastAPI `/docs` depuis la VM VLAN 20 | HTTP 200 |
+
+Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du certificat. Le certificat est autosigné : sa confiance devra être traitée séparément pour une validation TLS complète côté client.
+
+### Mesures de sécurité déjà appliquées
+
+- Le service PostgreSQL n'expose pas de port sur l'hôte.
+- L'API Docker est publiée uniquement sur l'interface de boucle locale.
+- Nginx assure le point d'entrée HTTPS sur l'adresse du serveur.
+- La clé privée TLS est stockée dans `/etc/nginx/ssl/ares-devsecapp.key` avec les permissions `600`.
+- Le fichier `.env` contenant les secrets n'est pas destiné au dépôt Git et doit rester hors versionnement.
+- Les règles de filtrage OPNsense doivent continuer à contrôler l'accès inter-VLAN.
+
+### Limites et points restant à vérifier
+
+- Le site Nginx par défaut expose encore un service HTTP sur le port 80 : il doit être désactivé ou explicitement justifié.
+- Vérifier les règles OPNsense finales et tester les flux autorisés et interdits depuis les différents VLAN.
+- Confirmer que SSH vers le serveur est limité aux sources d'administration autorisées.
+- Tester l'application depuis un navigateur client.
+- Vérifier le renouvellement ou le remplacement du certificat autosigné et sa confiance côté client.
+- Vérifier que les fichiers `.env`, les clés privées et autres secrets ne sont jamais versionnés.
+- La configuration serveur réalisée manuellement n'est pas encore automatisée par Terraform et Ansible.
+- Le VPN d'accès distant reste à mettre en place et à tester.
+
+### État du projet
+
+- [x] Déployer les conteneurs DevSecApp et PostgreSQL.
+- [x] Restreindre la publication du port de l'API à la boucle locale.
+- [x] Configurer Nginx en HTTPS sur le serveur applicatif.
+- [x] Valider `/health` depuis le VLAN 20.
+- [x] Valider l'accès à `/docs` depuis le VLAN 20.
+- [ ] Désactiver ou justifier le site HTTP par défaut de Nginx.
+- [ ] Finaliser les tests de filtrage inter-VLAN.
+- [ ] Vérifier les restrictions d'accès SSH.
+- [ ] Tester l'interface applicative depuis un navigateur.
+- [ ] Automatiser le déploiement avec Terraform et Ansible.
+- [ ] Configurer et tester le VPN d'accès distant.
+
+### Prochaine session
+
+1. Nettoyer la configuration Nginx et vérifier les ports en écoute.
+2. Tester les flux réseau autorisés et interdits avec OPNsense.
+3. Vérifier l'accès SSH et l'interface applicative.
+4. Mettre à jour la documentation d'architecture et de déploiement.
+5. Préparer l'automatisation Terraform et Ansible.
