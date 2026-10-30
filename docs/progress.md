@@ -287,3 +287,34 @@ Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du
 3. Vérifier l'accès SSH et l'interface applicative.
 4. Mettre à jour la documentation d'architecture et de déploiement.
 5. Préparer l'automatisation Terraform et Ansible.
+
+## 30 octobre 2026 — Durcissement du serveur applicatif
+
+### Nginx et HTTPS
+- Suppression du site HTTP par défaut (`/etc/nginx/sites-enabled/default`).
+- Vérification de la configuration avec `nginx -t` : succès.
+- Rechargement de Nginx effectué sans erreur.
+- Vérification des sockets : Nginx écoute uniquement sur `10.20.40.10:443`.
+- Le port HTTP 80 n'est plus exposé par Nginx.
+- L'API DevSecApp reste accessible localement sur `127.0.0.1:8000`.
+
+### Durcissement SSH
+- Vérification du compte d'administration `aresadmin`.
+- Installation de la clé publique Ed25519 du PC Debian principal.
+- Validation d'une connexion SSH par clé.
+- Création de `/etc/ssh/sshd_config.d/00-ares-hardening.conf`.
+- Désactivation de l'authentification par mot de passe et de l'authentification interactive.
+- Authentification par clé publique conservée.
+- Connexion root par mot de passe interdite.
+- Vérification de la syntaxe avec `sshd -t`.
+- Rechargement du service SSH.
+- Nouvelle connexion par clé testée avec succès après durcissement.
+
+### État et prochaines étapes
+- Nginx : configuration HTTPS opérationnelle, HTTP par défaut désactivé.
+- SSH : authentification par clé fonctionnelle, mots de passe désactivés.
+- CUPS et exposition des services système : à examiner.
+- Vérification complémentaire des règles réseau et des accès SSH inter-VLAN.
+- Tests applicatifs complémentaires.
+- Mise en place du VPN.
+- Poursuite de l'automatisation Terraform et Ansible.
