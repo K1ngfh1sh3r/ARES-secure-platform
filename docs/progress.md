@@ -318,3 +318,31 @@ Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du
 - Tests applicatifs complémentaires.
 - Mise en place du VPN.
 - Poursuite de l'automatisation Terraform et Ansible.
+
+## 31 octobre 2026 — Audit des services et réduction de la surface d'exposition
+
+### Inventaire des services
+- Réalisation d'un inventaire des ports TCP et UDP en écoute sur `ares-app-vlan40`.
+- Identification des services SSH, Nginx, Docker, CUPS, Avahi et systemd-timesyncd.
+- Confirmation que l'API DevSecApp écoute uniquement sur `127.0.0.1:8000`.
+- Confirmation que Nginx écoute sur `10.20.40.10:443`.
+
+### Désactivation des services inutiles
+- Arrêt et désactivation de CUPS (`cups.service`, `cups.socket`, `cups.path`).
+- Arrêt et désactivation d'Avahi (`avahi-daemon.service`, `avahi-daemon.socket`).
+- Vérification de l'état inactif des unités concernées.
+- Nouvel inventaire confirmant la disparition des ports TCP 631 et UDP 5353 ainsi que des ports dynamiques d'Avahi.
+
+### Vérifications après durcissement
+- SSH reste accessible sur le port TCP 22.
+- HTTPS reste accessible sur le port TCP 443.
+- L'API DevSecApp reste accessible localement sur le port TCP 8000.
+- Test de santé de l'API réussi : HTTP 200, `{"status":"ok"}`.
+- systemd-timesyncd conservé pour la synchronisation horaire.
+
+### Points restant à traiter
+- Examiner les échecs de synchronisation NTP sur UDP/123.
+- Vérifier les règles réseau et les accès SSH inter-VLAN.
+- Poursuivre les tests applicatifs.
+- Mettre en place le VPN.
+- Poursuivre l'automatisation Terraform et Ansible.
