@@ -371,3 +371,29 @@ Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du
 ### Points de validation restants
 - Vérifier le blocage des accès du VLAN20 vers les autres réseaux internes.
 - Vérifier que les accès autorisés restent fonctionnels.
+
+## 01/11/2026 — Validation de la segmentation réseau du VLAN20
+
+### Tests d'isolation inter-VLAN
+Tests réalisés depuis `ares-test-vlan20` (`10.20.20.10`).
+
+| Destination | Service testé | Résultat |
+|---|---|---|
+| VLAN10 - IT-ADMIN (`10.20.10.1`) | HTTPS/443 | Bloqué par OPNsense |
+| VLAN30 - BUSINESS (`10.20.30.1`) | HTTPS/443 | Bloqué par OPNsense |
+| VLAN40 - passerelle (`10.20.40.1`) | HTTPS/443 | Bloqué par OPNsense |
+| VLAN99 - RESCUE (`10.20.99.1`) | HTTPS/443 | Bloqué par OPNsense |
+| DevSecApp (`10.20.40.10`) | HTTPS/443 | Autorisé, HTTP 200 |
+
+- Les quatre blocages ont été confirmés dans les journaux Live View d'OPNsense.
+- L'accès HTTPS à DevSecApp reste fonctionnel depuis le VLAN20.
+
+### Validation de l'accès externe
+- Résolution DNS de `debian.org` réussie avec `getent hosts`.
+- Accès HTTPS à `deb.debian.org` réussi.
+- Réponse obtenue : HTTP/2 200.
+- Conclusion : l'accès Internet nécessaire aux mises à jour reste fonctionnel.
+
+### Bilan
+La politique de segmentation du VLAN20 est validée pour les flux testés :
+accès applicatif autorisé, accès aux autres réseaux internes bloqué et accès externe maintenu.
