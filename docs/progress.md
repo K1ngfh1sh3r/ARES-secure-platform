@@ -356,3 +356,18 @@ Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du
 - Serveur NTP utilisé : `109.190.177.200`.
 - Vérification après 1 minute : 3 paquets, offset de 2,127 ms.
 - Résultat : synchronisation stable.
+
+## 01/11/2026 — Validation des communications inter-VLAN
+
+### Accès HTTPS de DEVELOPMENT vers SERVERS
+- Test réalisé depuis la VM `ares-test-vlan20` (VLAN20 - DEVELOPMENT).
+- Destination : `10.20.40.10` (VLAN40 - SERVERS).
+- Service testé : HTTPS sur TCP/443.
+- Résultat : connexion réussie, réponse HTTP `200 OK`.
+- Serveur web : Nginx.
+- Réponse de santé DevSecApp : `{"status":"ok"}`.
+- Conclusion : la règle autorisant l'accès HTTPS du VLAN20 vers DevSecApp fonctionne.
+
+### Points de validation restants
+- Vérifier le blocage des accès du VLAN20 vers les autres réseaux internes.
+- Vérifier que les accès autorisés restent fonctionnels.
