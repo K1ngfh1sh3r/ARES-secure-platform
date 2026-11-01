@@ -341,8 +341,18 @@ Les tests HTTPS ont été effectués avec `curl -k`, qui ignore la validation du
 - systemd-timesyncd conservé pour la synchronisation horaire.
 
 ### Points restant à traiter
-- Examiner les échecs de synchronisation NTP sur UDP/123.
+- NTP : synchronisation rétablie et vérifiée sur VLAN40 (UDP/123).
 - Vérifier les règles réseau et les accès SSH inter-VLAN.
 - Poursuivre les tests applicatifs.
 - Mettre en place le VPN.
 - Poursuivre l'automatisation Terraform et Ansible.
+
+### 01/11/2026 — NTP et synchronisation horaire
+
+- Diagnostic : `systemd-timesyncd` actif, mais aucune synchronisation NTP.
+- Cause identifiée : absence de règle autorisant UDP/123 sur VLAN40.
+- Correction : ajout d'une règle OPNsense autorisant NTP sortant.
+- Validation : synchronisation confirmée (`System clock synchronized: yes`).
+- Serveur NTP utilisé : `109.190.177.200`.
+- Vérification après 1 minute : 3 paquets, offset de 2,127 ms.
+- Résultat : synchronisation stable.
