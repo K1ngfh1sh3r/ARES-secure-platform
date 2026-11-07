@@ -49,3 +49,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.log
+
+# Variables Terraform pouvant contenir des secrets
+*.tfvars
+*.tfvars.json

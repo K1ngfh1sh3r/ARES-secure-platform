@@ -1,0 +1,7 @@
+---
+- name: Configuration de base des machines ARES
+  hosts: ares_test
+  become: true
+
+  roles:
+    - base
