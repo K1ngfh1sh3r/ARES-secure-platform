@@ -397,3 +397,64 @@ Tests réalisés depuis `ares-test-vlan20` (`10.20.20.10`).
 ### Bilan
 La politique de segmentation du VLAN20 est validée pour les flux testés :
 accès applicatif autorisé, accès aux autres réseaux internes bloqué et accès externe maintenu.
+
+---
+
+## 09 novembre 2026 — Bilan final avant rendu
+
+### Infrastructure et réseau
+- [x] Déploiement de l'hyperviseur Proxmox et des machines virtuelles ARES.
+- [x] Déploiement et configuration du pare-feu OPNsense.
+- [x] Mise en place des VLAN10 IT-ADMIN, VLAN20 DEVELOPMENT, VLAN30 BUSINESS et VLAN40 SERVERS.
+- [x] Configuration du filtrage inter-VLAN.
+- [x] Validation des flux autorisés et interdits depuis les machines de test.
+- [x] Vérification de l'isolation du VLAN BUSINESS vis-à-vis de DevSecApp.
+- [x] Maintien des accès Internet nécessaires aux mises à jour.
+
+### Infrastructure as Code
+- [x] Création d'un template Debian 13 avec Cloud-Init.
+- [x] Provisionnement d'une machine virtuelle Proxmox avec Terraform.
+- [x] Configuration réseau et accès SSH de la machine provisionnée.
+- [x] Installation et configuration d'Ansible.
+- [x] Validation de la connectivité Ansible et de l'élévation de privilèges.
+- [x] Exécution du playbook de configuration de base.
+- [x] Documentation de la démarche Terraform et Ansible.
+
+L'automatisation couvre le provisionnement de la machine de test et sa configuration de base. Le déploiement complet du serveur applicatif existant n'est pas encore automatisé.
+
+### Application DevSecApp
+- [x] Déploiement de l'API FastAPI et de PostgreSQL.
+- [x] Publication de l'API uniquement sur la boucle locale.
+- [x] Configuration de Nginx comme reverse proxy HTTPS.
+- [x] Suppression du site HTTP par défaut.
+- [x] Durcissement SSH par authentification avec clé.
+- [x] Désactivation des services système inutiles.
+- [x] Mise en place de la gestion des rôles IT et Developer.
+- [x] Validation des opérations applicatives et des restrictions associées.
+- [x] Vérification des accès depuis les VLAN de test.
+- [x] Exécution réussie des 24 tests automatisés.
+
+Le certificat TLS utilisé est autosigné. Les tests réalisés avec `curl -k` ne valident donc pas une chaîne de confiance reconnue par les clients.
+
+### Supervision et sauvegardes
+- [x] Déploiement d'Uptime Kuma.
+- [x] Supervision de l'état HTTPS de DevSecApp.
+- [x] Supervision du port HTTPS de Nginx.
+- [x] Supervision du port PostgreSQL.
+- [x] Configuration de la rotation des journaux Docker.
+- [x] Création d'une sauvegarde PostgreSQL au format custom.
+- [x] Vérification de la lisibilité de l'archive de sauvegarde.
+
+La procédure de restauration PostgreSQL n'a pas encore été testée. Les sauvegardes complètes des machines virtuelles Proxmox ne sont pas configurées.
+
+### État des améliorations restantes
+- [ ] Déployer et tester un VPN pour l'accès distant.
+- [ ] Tester une restauration réelle de la base PostgreSQL.
+- [ ] Mettre en place une stratégie de sauvegarde des machines virtuelles Proxmox.
+- [ ] Automatiser davantage le déploiement du serveur applicatif.
+- [ ] Remplacer le certificat autosigné par une solution de confiance adaptée à l'environnement cible.
+
+### Bilan
+Les composants principaux de l'infrastructure ARES sont déployés et les validations réseau, applicatives et d'infrastructure as code ont été réalisées.
+
+Les fonctionnalités restantes sont identifiées comme des améliorations à poursuivre, et ne doivent pas être présentées comme déjà déployées ou validées.
