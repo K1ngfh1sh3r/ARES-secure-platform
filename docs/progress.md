@@ -458,3 +458,49 @@ La procédure de restauration PostgreSQL n'a pas encore été testée. Les sauve
 Les composants principaux de l'infrastructure ARES sont déployés et les validations réseau, applicatives et d'infrastructure as code ont été réalisées.
 
 Les fonctionnalités restantes sont identifiées comme des améliorations à poursuivre, et ne doivent pas être présentées comme déjà déployées ou validées.
+
+
+---
+
+## 12 novembre 2026 — Validation finale complémentaire
+
+### Sauvegarde et restauration PostgreSQL
+
+- [x] Vérification du format custom de la sauvegarde PostgreSQL du 7 novembre.
+- [x] Vérification du catalogue de l'archive avec PostgreSQL 17.11.
+- [x] Vérification complète de l'intégrité gzip de l'archive de sauvegarde applicative.
+- [x] Création d'une base temporaire `ares_restore_test_20261112`.
+- [x] Restauration du dump avec `pg_restore --exit-on-error`, sans erreur.
+- [x] Vérification de la présence de la table `public.vulnerabilities`.
+- [x] Comparaison des données : 1 enregistrement en production et 1 enregistrement restauré.
+- [x] Vérification de la séquence `vulnerabilities_id_seq` après restauration.
+- [x] Suppression de la base temporaire et du dump temporaire dans le conteneur.
+- [x] Vérification finale de la base de production après nettoyage.
+
+La restauration a été réalisée dans une base indépendante. Les données de production n'ont pas été modifiées.
+
+### Audit Terraform et Git
+
+- [x] `terraform validate` : configuration valide.
+- [x] `terraform plan` : aucune différence détectée avec l'infrastructure suivie.
+- [x] Vérification de l'état Git : branche `main` propre et synchronisée avec `origin/main`.
+- [x] Vérification des fichiers suivis : aucun état Terraform, fichier `.tfvars`, secret ou clé privée suivi par Git.
+- [x] Vérification des règles `.gitignore`.
+- [x] Conservation de `.terraform.lock.hcl` dans le dépôt.
+
+### Audit Ansible
+
+- [x] Vérification syntaxique de `ansible/playbooks/base.yml`.
+- [x] Vérification de l'inventaire : présence de `ares-tf-test` dans `ares_test`.
+- [x] Test de connectivité Ansible : `pong`.
+- [x] Vérification de l'identité de la VM : `ares-tf-test`.
+- [x] Vérification de l'élévation sudo : utilisateur effectif `root`.
+- [x] Simulation du playbook en mode `--check --diff` : aucune erreur, 4 tâches exécutées en simulation.
+
+En mode simulation, Ansible a indiqué une modification prévue pour la mise à jour du cache APT (`changed=1`). Le mode `--check` n'a pas appliqué cette modification.
+
+### Bilan
+
+Les contrôles complémentaires du 12 novembre confirment la restaurabilité de la sauvegarde PostgreSQL ainsi que le bon fonctionnement des validations Terraform et Ansible.
+
+Les sauvegardes complètes des machines virtuelles Proxmox, le VPN et l'automatisation complète du serveur applicatif restent des améliorations non réalisées.

@@ -86,7 +86,7 @@ Uptime Kuma monitors:
 - Nginx TCP/443 availability.
 - PostgreSQL TCP/5432 availability.
 
-A PostgreSQL custom-format backup has been created and its archive integrity checked. A real restoration test and full Proxmox virtual machine backup strategy remain outstanding.
+A PostgreSQL custom-format backup has been created, its archive integrity checked, and a real restoration test successfully completed in a temporary database. Full Proxmox virtual machine backups remain outstanding.
 
 ## Repository structure
 
@@ -124,9 +124,9 @@ A PostgreSQL custom-format backup has been created and its archive integrity che
 | Terraform provisioning | Validated |
 | Ansible configuration | Validated |
 | Uptime Kuma monitoring | Operational |
-| PostgreSQL backup | Created and archive checked |
+| PostgreSQL backup | Created, archive integrity checked, and restoration tested |
 | VPN remote access | Not yet deployed |
-| PostgreSQL restoration test | Remaining |
+| PostgreSQL restoration test | Successful: 1 restored row, matching production |
 | Full Proxmox VM backups | Not yet configured |
 
 ## Documentation
@@ -142,7 +142,6 @@ A PostgreSQL custom-format backup has been created and its archive integrity che
 ## Future improvements
 
 - Deploy and validate a VPN for secure remote access.
-- Test a complete PostgreSQL restoration procedure.
 - Configure automated Proxmox virtual machine backups.
 - Extend Terraform and Ansible automation to the application server.
 - Replace the self-signed TLS certificate with a trusted certificate where appropriate.

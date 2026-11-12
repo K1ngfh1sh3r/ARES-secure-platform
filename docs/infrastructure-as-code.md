@@ -373,3 +373,50 @@ et Ansible applique une configuration système reproductible.
 
 Les tests réalisés confirment le bon fonctionnement de la chaîne
 d'automatisation ainsi que l'idempotence du rôle Ansible de base.
+
+
+## 11. Validation complémentaire du 12 novembre 2026
+
+### 11.1. État Terraform
+
+Les contrôles complémentaires ont donné les résultats suivants :
+
+| Vérification | Résultat |
+|---|---|
+| `terraform validate` | Configuration valide |
+| `terraform plan` | Aucune modification nécessaire |
+| VM suivie par Terraform | `ares-tf-test` (VM 140) |
+| État Git | Branche `main` propre et synchronisée |
+
+Le plan Terraform a confirmé que l'infrastructure existante correspond à la configuration déclarée. Aucun changement n'était proposé.
+
+Le token API Proxmox est demandé à l'exécution et n'est pas enregistré dans le dépôt.
+
+### 11.2. Protection des fichiers sensibles
+
+L'audit de `git ls-files` n'a révélé aucun fichier sensible suivi par Git.
+
+Les états Terraform, fichiers de variables `.tfvars`, secrets, clés privées et certificats privés sont exclus du dépôt avec `.gitignore`.
+
+Le fichier `.terraform.lock.hcl` est conservé afin de verrouiller les versions des providers.
+
+### 11.3. Validation Ansible
+
+Les contrôles réalisés depuis la machine de développement vers la VM 140 ont confirmé :
+
+| Vérification | Résultat |
+|---|---|
+| Syntaxe du playbook `base.yml` | Valide |
+| Inventaire `ares_test` | VM `ares-tf-test` présente |
+| Module Ansible `ping` | `pong` |
+| Identification distante | `ares-tf-test` |
+| Élévation sudo non interactive | `root` |
+| Simulation `--check --diff` | 4 tâches, aucune erreur |
+
+La simulation a signalé une modification prévue concernant le cache APT (`changed=1`). Cette opération n'a pas été appliquée, car le playbook a été lancé en mode `--check`.
+
+### 11.4. Périmètre de l'automatisation
+
+La chaîne validée couvre le provisionnement d'une VM de test avec Terraform et sa configuration système de base avec Ansible.
+
+Elle ne constitue pas encore une automatisation complète du déploiement de la VM applicative ARES. Cette limite est conservée explicitement dans le périmètre du projet.
