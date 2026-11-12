@@ -86,7 +86,7 @@ Uptime Kuma monitors:
 - Nginx TCP/443 availability.
 - PostgreSQL TCP/5432 availability.
 
-A PostgreSQL custom-format backup has been created, its archive integrity checked, and a real restoration test successfully completed in a temporary database. Full Proxmox virtual machine backups remain outstanding.
+A PostgreSQL custom-format backup has been created and its archive integrity checked. A restoration test was successfully completed in a temporary database: the restored row count matched production and the sequence state was verified. Full Proxmox virtual machine backups remain outstanding.
 
 ## Repository structure
 
@@ -97,6 +97,7 @@ A PostgreSQL custom-format backup has been created, its archive integrity checke
 │   ├── playbooks/
 │   └── roles/
 ├── docs/
+│   ├── IA.md
 │   ├── cahier-des-charges.md
 │   ├── architecture.md
 │   ├── infrastructure-as-code.md
@@ -110,7 +111,7 @@ A PostgreSQL custom-format backup has been created, its archive integrity checke
 └── README.md
 ```
 
-## Project status — 9 November 2026
+## Project status — 12 November 2026
 
 | Area | Status |
 |---|---|
@@ -124,9 +125,8 @@ A PostgreSQL custom-format backup has been created, its archive integrity checke
 | Terraform provisioning | Validated |
 | Ansible configuration | Validated |
 | Uptime Kuma monitoring | Operational |
-| PostgreSQL backup | Created, archive integrity checked, and restoration tested |
+| PostgreSQL backup and restoration | Archive integrity checked; temporary restore successful, with 1 row matching production |
 | VPN remote access | Not yet deployed |
-| PostgreSQL restoration test | Successful: 1 restored row, matching production |
 | Full Proxmox VM backups | Not yet configured |
 
 ## Documentation
@@ -138,6 +138,7 @@ A PostgreSQL custom-format backup has been created, its archive integrity checke
 - [Infrastructure as Code](docs/infrastructure-as-code.md)
 - [Monitoring](docs/monitoring.md)
 - [Project progress](docs/progress.md)
+- [AI usage journal](docs/IA.md)
 
 ## Future improvements
 
