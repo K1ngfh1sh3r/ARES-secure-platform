@@ -150,3 +150,8 @@ A PostgreSQL custom-format backup has been created and its archive integrity che
 ---
 
 ARES demonstrates a segmented enterprise lab combining network security, infrastructure automation, secure application deployment, access control, and service monitoring. Remaining improvements are explicitly documented and are not presented as completed features.
+
+## Author Information
+
+- **GitHub Account:** [K1ngfh1sh3r](https://github.com/K1ngfh1sh3r)
+- **OTERIA Email Address:** `paul.josse@oteria.fr`
