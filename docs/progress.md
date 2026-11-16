@@ -445,11 +445,11 @@ Le certificat TLS utilisé est autosigné. Les tests réalisés avec `curl -k` n
 - [x] Création d'une sauvegarde PostgreSQL au format custom.
 - [x] Vérification de la lisibilité de l'archive de sauvegarde.
 
-La procédure de restauration PostgreSQL n'a pas encore été testée. Les sauvegardes complètes des machines virtuelles Proxmox ne sont pas configurées.
+La restauration PostgreSQL a été testée avec succès le 12 novembre 2026 dans une base temporaire indépendante. Les données restaurées et l'état de la séquence ont été vérifiés. Les sauvegardes complètes des machines virtuelles Proxmox ne sont pas configurées.
 
 ### État des améliorations restantes
 - [ ] Déployer et tester un VPN pour l'accès distant.
-- [ ] Tester une restauration réelle de la base PostgreSQL.
+- [x] Tester une restauration réelle de la base PostgreSQL.
 - [ ] Mettre en place une stratégie de sauvegarde des machines virtuelles Proxmox.
 - [ ] Automatiser davantage le déploiement du serveur applicatif.
 - [ ] Remplacer le certificat autosigné par une solution de confiance adaptée à l'environnement cible.
